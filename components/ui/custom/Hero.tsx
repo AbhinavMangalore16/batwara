@@ -39,14 +39,13 @@ export function Hero() {
   return (
     <div className="relative my-10 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
       <h2 className="relative z-20 w-full px-6 text-center text-2xl font-bold text-balance text-white md:text-4xl lg:text-6xl">
-        Split bills with confidence — settle {" "}
+        Smart bill-splitting.
         <Highlight>
-          smarter
-        {" "}today!
+        Zero confusion.
         </Highlight>
       </h2>
       <p className="relative z-20 w-full px-6 py-8 text-center text-sm text-neutral-200 md:text-base">
-        Batwara automates expense sharing with graph-based debt optimization, intelligent settlements, and AI insights — keep balances clear and friendships intact.
+       Batwara handles expenses, optimizes debts, and keeps things fair.
       </p>
 
       <div className="relative z-20 flex flex-wrap items-center justify-center gap-4 pt-4">
