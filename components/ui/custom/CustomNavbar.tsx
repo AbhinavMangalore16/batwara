@@ -10,10 +10,30 @@ import {
   MobileNavToggle,
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
-import { useState } from "react";
-
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export const CustomNavbar = () => {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by checking for auth token
+    const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+    setIsLoggedIn(!!token);
+  }, []);
+  const handleSignOut = () =>{
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_refresh_token");
+    localStorage.removeItem("auth_user");
+    sessionStorage.removeItem("auth_token");
+    sessionStorage.removeItem("auth_refresh_token");
+    sessionStorage.removeItem("auth_user");
+    setIsLoggedIn(false);
+    router.push("/");
+  }
   const navItems = [
     {
       name: "Features",
@@ -32,7 +52,6 @@ export const CustomNavbar = () => {
       link: "#contact",
     }
   ]
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   return (
     <div className="sticky top-0 z-50 w-full">
     <Navbar className="sticky top-0 z-50">
@@ -41,8 +60,13 @@ export const CustomNavbar = () => {
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-8">
-            {/* <NavbarButton variant="secondary">Login</NavbarButton> */}
-            <NavbarButton variant="primary">Login</NavbarButton>
+            {isLoggedIn ? (
+              <NavbarButton variant="primary" onClick={handleSignOut}>
+                Sign Out
+              </NavbarButton>
+            ) : (
+              <NavbarButton variant="primary" href="/login">Login</NavbarButton>
+            )}
           </div>
         </NavBody>
  
@@ -71,20 +95,32 @@ export const CustomNavbar = () => {
               </a>
             ))}
             <div className="flex w-full flex-col gap-4">
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Login
-              </NavbarButton>
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Book a call
-              </NavbarButton>
+              {isLoggedIn ? (
+                <NavbarButton
+                  onClick={handleSignOut}
+                  variant="primary"
+                  className="w-full"
+                >
+                  Sign Out
+                </NavbarButton>
+              ) : (
+                <>
+                  <NavbarButton
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    <Link href='/login'>Login</Link>
+                  </NavbarButton>
+                  <NavbarButton
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    Book a call
+                  </NavbarButton>
+                </>
+              )}
             </div>
           </MobileNavMenu>
         </MobileNav>

@@ -68,11 +68,11 @@ export const SkeletonThree = () => {
 
 export const SkeletonTwo = () => {
     const images = [
-        "https://images.unsplash.com/photo-1517322048670-4fba75cbbb62?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1573790387438-4da905039392?q=80&w=3425&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1555400038-63f5ba517a47?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1554931670-4ebfabf6e7a9?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        "https://images.unsplash.com/photo-1546484475-7f7bd55792da?q=80&w=2581&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://hosting.renderforestsites.com/images/7016963/97078/b0e92183375bbcce4586a11413681e4f.png",
+        "https://www.wikihow.com/images/thumb/3/3c/Write-a-Bill-for-Payment-Step-10-Version-2.jpg/v4-460px-Write-a-Bill-for-Payment-Step-10-Version-2.jpg",
+        "https://cdn.prod.website-files.com/61e7d259b7746e3f63f0b6be/62f266fdfde2c20602a59127_receipt_w_boxes.jpeg",
+        "https://cdn.prod.website-files.com/61e7d259b7746e3f63f0b6be/62f266fdfde2c20602a59127_receipt_w_boxes.jpeg",
+        "https://cdn.prod.website-files.com/61e7d259b7746e3f63f0b6be/62f266fdfde2c20602a59127_receipt_w_boxes.jpeg",
     ];
 
     const imageVariants = {
@@ -281,7 +281,7 @@ export const SkeletonEight = () => {
                     <p className="text-neutral-800 dark:text-neutral-200 text-sm font-semibold">
                         Final Settlement (Abhinav's Status)
                     </p>
-                    <p className="text-emerald-500 text-xs font-bold">🎉 Abhinav gets back ₹4,275.83</p>
+                    <p className="text-emerald-500 text-xs font-bold">Abhinav gets back ₹4,275</p>
                     <span className="absolute -left-8 top-1 h-3 w-3 rounded-full bg-emerald-500 
                     border-2 border-white dark:border-black animate-pulse"></span>
                 </div>
@@ -627,61 +627,59 @@ const FeatureDescription = ({ children }: { children?: React.ReactNode }) => {
 
 export function FeaturesSection() {
     const features = [
-        // Row 1
         {
-            title: "Track issues effectively",
-            description: "Track and manage your project issues with ease using our intuitive interface.",
+            title: "Settle debts effectively",
+            description: "Track shared expenses without the drama. We handle the math so you don't have to send awkward 'you owe me' texts.",
             skeleton: <SkeletonOne />,
             className: "col-span-1 lg:col-span-4 border-b lg:border-r dark:border-neutral-800 bg-white dark:bg-black",
         },
         {
-            title: "Capture pictures with AI",
-            description: "Capture stunning photos effortlessly using our advanced AI technology.",
+            title: "Receipts? Just snap 'em",
+            description: "Don't type out numbers like it's 1999. Our AI scans the bill, itemizes it, and splits it for you instantly.",
             skeleton: <SkeletonTwo />,
             className: "border-b col-span-1 lg:col-span-2 dark:border-neutral-800 bg-white dark:bg-black",
         },
-        // Row 2
         {
-            title: "Watch our AI on YouTube",
-            description: "Whether its you or Tyler Durden, you can get to know about our product on YouTube",
+            title: "See it in action",
+            description: "Confused? Watch a quick demo. It's easier than explaining to your dad how to use Venmo.",
             skeleton: <SkeletonThree />,
             className: "col-span-1 lg:col-span-3 border-b lg:border-r dark:border-neutral-800 bg-white dark:bg-black",
         },
-        {
-            title: "Explore More, Worry Less",
-            description: "Whether you’re traveling with friends or chilling at home, Batwara keeps every shared expense perfectly balanced in real time.",
+{
+            title: "Explore more, worry less",
+            description: "Whether it's a road trip with the squad or just splitting WiFi, we keep the balance sheet updated so you can focus on the fun.",
             skeleton: <SkeletonFour />,
             className: "col-span-1 lg:col-span-3 border-b lg:border-none dark:border-neutral-800 bg-white dark:bg-black",
         },
         // Row 3
         {
-            title: "Settle Smarter, Not Harder",
-            description: "Batwara computes the most efficient settlement path, reducing messy payment chains into clean, minimal transactions.",
+            title: "The 'Lazy Math' Engine",
+            description: "Why make 10 transfers when 1 will do? We calculate the smartest path to settle debts so money doesn't go in circles.",
             skeleton: <SkeletonFive />,
             className: "col-span-1 lg:col-span-3 border-b lg:border-r dark:border-neutral-800 bg-white dark:bg-black",
         },
         {
-            title: "Know Where You Stand, Instantly",
-            description: "Your Dashboard updates live for every group—showing what you owe, what others owe you, and every upcoming settlement.",
+            title: "The Live Scoreboard",
+            description: "No more guessing. Your dashboard shows exactly who owes you (and who you need to pay) right this second.",
             skeleton: <SkeletonSix />,
             className: "col-span-1 lg:col-span-3 border-b dark:border-neutral-800 bg-white dark:bg-black",
         },
         {
-            title: "Fast Settlements",
-            description: "Collapses debts so your group settles with the fewest payments.",
+            title: "Chain Breaker",
+            description: "We collapse complex debt chains into the fewest payments possible.",
             skeleton: <SkeletonSeven />,
             className: "col-span-1 lg:col-span-2 lg:border-r dark:border-neutral-800 bg-white dark:bg-black",
         },
         {
-            title: "Transparent Logging",
-            description: "Batwara keeps a transparent timeline of all splits across your groups.",
+            title: "The 'I Paid That' Proof",
+            description: "A permanent timeline of every split. No more arguments about who bought dinner last Tuesday.",
             skeleton: <SkeletonEight />,
             className: "col-span-1 lg:col-span-2 lg:border-r dark:border-neutral-800 bg-white dark:bg-black",
         },
         // NEW FEATURE
         {
-            title: "Social Graphs",
-            description: "Visualize your financial connections and friend networks.",
+            title: "Your Money Galaxy",
+            description: "See your financial web. A cool graph of who you spend the most time (and money) with.",
             skeleton: <SkeletonNine />,
             className: "col-span-1 lg:col-span-2 dark:border-neutral-800 bg-white dark:bg-black",
         },

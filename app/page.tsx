@@ -1,4 +1,5 @@
 "use client"
+import { useEffect, useState } from "react";
 import { FeaturesSectionDemo1 } from "@/components/features-section-demo-1";
 import { CustomNavbar } from "@/components/ui/custom/CustomNavbar";
 import { CustomTestimonies } from "@/components/ui/custom/CustomTestimonies";
@@ -8,6 +9,7 @@ import { FlipWords } from "@/components/ui/flip-words";
 import { HeroHighlight, Highlight } from "@/components/ui/hero-highlight";
 import { motion } from "motion/react";
 import { HelpCircle, Zap, Clock, ShieldCheck } from "lucide-react";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { FeaturesSection } from "@/components/ui/custom/FeaturesSection";
 import { HeroProduct } from "@/components/ui/custom/HeroProduct";
 import PricingSection from "@/components/ui/custom/PricingSection";
@@ -16,12 +18,46 @@ import { ContactHighlight } from "@/components/ui/custom/ContactHighlight";
 import { TestimonialTitle } from "@/components/ui/custom/TestimonialTitle";
 import { CustomFeatures } from "@/components/ui/custom/CustomFeatures";
 import { Ending } from "@/components/ui/custom/Ending";
+import dynamic from "next/dynamic";
+
 
 export default function Home() {
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      try {
+        const raw = localStorage.getItem("auth_user");
+        if (raw) {
+          const user = JSON.parse(raw);
+          if (user && user.name) {
+            setName(user.name);
+          } else {
+            setName(null);
+          }
+        } else {
+          setName(null);
+        }
+      } catch (e) {
+        setName(null);
+      }
+    };
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
+  }, []);
+
+
+
   return (
     <>
       <div className="w-full">
         <CustomNavbar />
+        {name && (
+          <div className="px-6 py-4">
+            <p className="text-lg font-semibold text-black dark:text-white">Hello, {name}</p>
+          </div>
+        )}
         {/* <HeroHighlight>
       <motion.h1
         initial={{
@@ -58,7 +94,7 @@ export default function Home() {
         </section>
 
         <section id="faq" className="py-12 lg:py-20">
-          <div className="max-w-7xl mx-auto px-6">
+          <div className="max-w-4xl mx-auto px-6">
             <h3 className="text-3xl lg:text-4xl font-bold text-center text-black dark:text-white">
               Frequently asked questions
             </h3>
@@ -66,54 +102,40 @@ export default function Home() {
               Common questions about Batwara — how it works, privacy, and settlements.
             </p>
 
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-                <div className="flex items-start space-x-4">
-                  <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600">
-                    <HelpCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-black dark:text-white">How does Batwara split bills?</h4>
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Create a group, add expenses, and Batwara computes who owes whom and suggests minimal settlements.</p>
-                  </div>
-                </div>
-              </div>
+            <div className="mt-8">
+              <Accordion type="multiple" className="space-y-3">
+                <AccordionItem value="q-1" className="bg-white dark:bg-gray-900 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow">
+                  <AccordionTrigger className="px-6">How does Batwara split bills?</AccordionTrigger>
+                  <AccordionContent className="px-6">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">Create a group, add expenses with participants, and Batwara computes the net balances between members. We then offer minimal settlement suggestions so everyone pays as little as possible.</p>
+                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">You can mark expenses as shared equally, by percentage, or assign per-person amounts. Export settlements or send payment links directly to participants.</p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-                <div className="flex items-start space-x-4">
-                  <div className="p-2 rounded-md bg-amber-50 dark:bg-amber-900/20 text-amber-600">
-                    <Zap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-black dark:text-white">How fast are settlements?</h4>
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Settlements are computed instantly; you can settle immediately via supported payment links or export minimal-pay instructions.</p>
-                  </div>
-                </div>
-              </div>
+                <AccordionItem value="q-2" className="bg-white dark:bg-gray-900 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow">
+                  <AccordionTrigger className="px-6">How fast are settlements?</AccordionTrigger>
+                  <AccordionContent className="px-6">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">Settlement calculations are instantaneous. Once expenses are saved, the app computes optimized transfers immediately.</p>
+                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">For actual money transfers, Batwara can generate payment links (UPI, Stripe) or provide a minimal pay list you can use with your preferred payment app.</p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-                <div className="flex items-start space-x-4">
-                  <div className="p-2 rounded-md bg-violet-50 dark:bg-violet-900/20 text-violet-600">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-black dark:text-white">Is my data private?</h4>
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">We only store group and expense metadata needed for calculations. You control who joins groups. We do not sell your data.</p>
-                  </div>
-                </div>
-              </div>
+                <AccordionItem value="q-3" className="bg-white dark:bg-gray-900 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow">
+                  <AccordionTrigger className="px-6">Is my data private?</AccordionTrigger>
+                  <AccordionContent className="px-6">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">We store only information required to compute settlements: group membership, expenses, and minimal metadata. Personal payment credentials are not stored unless you explicitly connect a payment provider.</p>
+                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">You control group visibility and membership. We do not sell your data and follow standard security practices for stored data.</p>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <div className="p-6 bg-white dark:bg-gray-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-                <div className="flex items-start space-x-4">
-                  <div className="p-2 rounded-md bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold text-black dark:text-white">What payment methods are supported?</h4>
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Batwara supports common payment links (UPI, Pay, Stripe links) depending on your region and integrations.</p>
-                  </div>
-                </div>
-              </div>
+                <AccordionItem value="q-4" className="bg-white dark:bg-gray-900 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow">
+                  <AccordionTrigger className="px-6">What payment methods are supported?</AccordionTrigger>
+                  <AccordionContent className="px-6">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">Batwara supports common regional payment links and integrations depending on availability: UPI (India), Stripe/ACH, and direct payment links. Support depends on your region and enabled integrations.</p>
+                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">If you need additional integrations, contact our support and we can prioritize connectors.</p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
         </section>

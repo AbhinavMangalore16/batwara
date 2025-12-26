@@ -29,7 +29,7 @@ const pricingTiers: PricingTier[] = [
       "Basic settlement history",
       "Light theme only",
     ],
-    buttonText: "Get Started",
+    buttonText: "Start Free Trial",
     buttonVariant: "outline",
   },
   {
@@ -45,7 +45,7 @@ const pricingTiers: PricingTier[] = [
       "Categorized expenses",
       "Export to CSV",
     ],
-    buttonText: "Choose Plan",
+    buttonText: "Choose Beta",
     buttonVariant: "secondary",
   },
   {
@@ -62,7 +62,7 @@ const pricingTiers: PricingTier[] = [
       "Priority notifications",
     ],
     highlighted: true,
-    buttonText: "Start Free Trial",
+    buttonText: "Get Gamma",
     buttonVariant: "primary",
   },
   {

@@ -10,24 +10,24 @@ import { IconBrandYoutubeFilled } from "@tabler/icons-react";
 export function CustomFeatures() {
     const features = [
         {
-            title: "Track issues effectively",
+            title: "Settle debts effectively",
             description:
-                "Track and manage your project issues with ease using our intuitive interface.",
+                "Track shared expenses without the drama. We handle the math so you don't have to send awkward 'you owe me' texts.",
             skeleton: <SkeletonOne />,
             className:
                 "col-span-1 lg:col-span-4 border-b lg:border-r dark:border-neutral-800",
         },
         {
-            title: "Capture pictures with AI",
+            title: "Receipts? Just snap 'em",
             description:
-                "Capture stunning photos effortlessly using our advanced AI technology.",
+                "Don't type out numbers like it's 1999. Our AI scans the bill, itemizes it, and splits it for you instantly.",
             skeleton: <SkeletonTwo />,
             className: "border-b col-span-1 lg:col-span-2 dark:border-neutral-800",
         },
         {
-            title: "Watch our AI on YouTube",
+            title: "See it in action",
             description:
-                "Whether its you or Tyler Durden, you can get to know about our product on YouTube",
+                "Confused? Watch a quick demo. It's easier than explaining to your dad how to use Venmo.",
             skeleton: <SkeletonThree />,
             className:
                 "col-span-1 lg:col-span-3 lg:border-r  dark:border-neutral-800",
@@ -343,13 +343,13 @@ export const Globe = ({ className }: { className?: string }) => {
             markerColor: [0.1, 0.8, 1],
             glowColor: [1, 1, 1],
             markers: [
-                { location: [28.6139, 77.2090], size: 0.12 },  // Delhi
-                { location: [19.0760, 72.8777], size: 0.10 },  // Mumbai
-                { location: [23.1291, 113.2644], size: 0.11 }, // Guangzhou
-                { location: [31.2304, 121.4737], size: 0.12 }, // Shanghai
-                { location: [39.9042, 116.4074], size: 0.12 }, // Beijing
-                { location: [35.6762, 139.6503], size: 0.10 }, // Tokyo
-                { location: [40.7128, -74.0060], size: 0.10 }, // New York
+                { location: [28.6139, 77.2090], size: 0.8 },  // Delhi
+                { location: [19.0760, 72.8777], size: 0.1 },  // Mumbai
+                { location: [23.1291, 113.2644], size: 0.1 }, // Guangzhou
+                { location: [31.2304, 121.4737], size: 0.1 }, // Shanghai
+                { location: [39.9042, 116.4074], size: 0.1 }, // Beijing
+                { location: [35.6762, 139.6503], size: 0.1 }, // Tokyo
+                { location: [40.7128, -74.0060], size: 0.1 }, // New York
                 { location: [34.0522, -118.2437], size: 0.08 }, // Los Angeles
                 { location: [51.5074, -0.1278], size: 0.07 },   // London
                 { location: [48.8566, 2.3522], size: 0.06 },    // Paris

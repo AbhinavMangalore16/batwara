@@ -2,41 +2,41 @@ import { AnimatedTestimonials } from "../animated-testimonials";
 import { TestimonialTitle } from "./TestimonialTitle";
 
 export const CustomTestimonies = () =>{
-      const testimonials = [
+const testimonials = [
     {
       quote:
-        "We stopped arguing over who owes what. Batwara made splitting bills effortless and fair for our household.",
-      name: "Roommates, Mumbai",
-      designation: "Roommates",
-      src: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=3560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "Living with 3 others used to mean endless 'who paid for milk?' texts. Batwara just handles it. We don't even talk about money anymore, we just settle up.",
+      name: "Rohan & Flatmates",
+      designation: "Students, Mumbai",
+      src: "https://i.pinimg.com/474x/48/f9/3b/48f93b19a6d6b18a83d2fa41b14e417d.jpg",
     },
     {
       quote:
-        "The graph settlements cut down transactions after our trip — everyone paid what they owed in two clicks.",
-      name: "Friends, Bangalore",
-      designation: "Group Organizer",
-      src: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "Took a trip to Manali with 8 friends. The debt graph is genius—it turned 40 messy transactions into just 3 transfers. I actually enjoyed being the treasurer for once.",
+      name: "Ananya S.",
+      designation: "Travel Enthusiast, Bangalore",
+      src: "https://m.media-amazon.com/images/M/MV5BMDc1NDE3NDgtZGI5MC00MDhlLWI2NDgtNGIxZGUwMWNmYTY3XkEyXkFqcGc@._V1_.jpg",
     },
     {
       quote:
-        "AI insights helped us spot spending patterns and suggested fair allocations — a real timesaver.",
-      name: "Travel Group, Delhi",
-      designation: "Frequent Traveler",
-      src: "https://images.unsplash.com/photo-1623582854588-d60de57fa33f?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "I hate typing out bills. The AI scanner is legit—I snap a picture of a long dinner receipt and it itemizes everything automatically. Huge time saver.",
+      name: "Vikram D.",
+      designation: "Freelancer, Delhi",
+      src: "https://upload.wikimedia.org/wikipedia/commons/f/fe/EIk22BhUYAEF_k3.jpg",
     },
     {
       quote:
-        "Secure sync across devices made it easy to keep records and settle debts without awkward messages.",
-      name: "Office Team, Hyderabad",
-      designation: "Team Lead",
-      src: "https://images.unsplash.com/photo-1636041293178-808a6762ab39?q=80&w=3464&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "My partner and I use it for everything from groceries to rent. It’s not about being stingy, it’s about transparency. No more 'I paid last time' arguments.",
+      name: "Andrea & Sam",
+      designation: "Product Designers, Frankfurt",
+      src: "https://img.freepik.com/free-photo/medium-shot-smiley-couple-couch_23-2149145063.jpg?semt=ais_hybrid&w=740&q=80",
     },
     {
       quote:
-        "Clear history, simple groups, and fair splits — Batwara keeps money matters friendly.",
-      name: "Flatmates, Pune",
-      designation: "Flatmates",
-      src: "https://images.unsplash.com/photo-1624561172888-ac93c696e10c?q=80&w=2592&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "Ordering lunch for the team is no longer a headache. I just log it, split it by 'exact amounts' for the picky eaters, and send the request. Done.",
+      name: "Arjun K.",
+      designation: "Team Lead, Hyderabad",
+      src: "https://in.bmscdn.com/iedb/artist/images/website/poster/large/allu-arjun-125-03-10-2016-01-55-06.jpg",
     },
   ];
   return (
