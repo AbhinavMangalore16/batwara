@@ -254,7 +254,6 @@ export default function AuthView() {
         setErrorS(null)
         setPending(true)
         try {
-            console.log(process.env.NEXT_PUBLIC_BETTER_AUTH_URL);
             const res = await fetch(process.env.NEXT_PUBLIC_BETTER_AUTH_URL + "/api/auth/sign-up/email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Origin": process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000" },
@@ -268,7 +267,6 @@ export default function AuthView() {
             if (!res.ok) {
                 throw new Error(result.message || "Sign up failed");
             }
-            console.log("SIGNUP SUCCESS:", result);
             localStorage.setItem("auth_token", result.token);
             localStorage.setItem("auth_refresh_token", result.refreshToken);
             localStorage.setItem("auth_user", JSON.stringify(result.user));
@@ -287,7 +285,6 @@ export default function AuthView() {
         setError(null);
         setPending(true);
         try {
-            console.log(process.env.NEXT_PUBLIC_BETTER_AUTH_URL);
             const res = await fetch(process.env.NEXT_PUBLIC_BETTER_AUTH_URL + "/api/auth/sign-in/email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Origin": process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000" },
