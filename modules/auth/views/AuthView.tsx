@@ -344,7 +344,7 @@ export default function AuthView() {
 
     return (
         <div>
-            <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0D1117] to-[#02040A] font-sans px-4 text-[#E2E8F0]">
+            <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-b from-[#0D1117] to-[#02040A] font-sans px-4 text-[#E2E8F0]">
                 {/* Mobile Layout */}
                 <div className="w-full max-w-xl md:hidden text-white">
                     <div className="bg-[#161B22] rounded-3xl shadow-xl overflow-auto max-h-[90vh]">
@@ -458,7 +458,7 @@ export default function AuthView() {
                                                 {error}
                                             </Alert>
                                         )}
-                                        <Button type="submit" className="w-full px-4 mt-2 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign Up</Button>
+                                        <Button type="submit" className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign Up</Button>
 
                                         {/* Divider */}
                                         <div className="flex items-center my-3 w-full">
@@ -573,7 +573,7 @@ export default function AuthView() {
                                                 {errorS}
                                             </Alert>
                                         )}
-                                        <Button type="submit" className="w-full px-4 mt-2 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign In</Button>
+                                        <Button type="submit" className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign In</Button>
 
                                         {/* Divider */}
                                         <div className="flex items-center my-3 w-full">

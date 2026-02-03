@@ -42,7 +42,7 @@ export function Hero() {
       <h2 className="relative z-20 w-full px-6 text-center text-2xl font-bold text-balance text-white md:text-4xl lg:text-6xl">
         The smartest way to {" "}
         <Highlight>
-          split anything!
+          split payments!
         </Highlight>
       </h2>
       <p className="relative z-20 w-full px-6 py-8 text-center text-sm text-neutral-200 md:text-base">
