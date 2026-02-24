@@ -63,18 +63,15 @@ export function CreateBillModal({ onBillCreated }: { onBillCreated?: () => void 
   // Fetch friends when modal opens
   useEffect(() => {
     if (open) {
-      api.getMe().then((data) => {
-        // Assuming your user object has a 'friends' array or similar. 
-        // If not, you might need a separate /friends endpoint.
-        // For now, let's assume we can fetch them or mock them.
-        // setFriends(data.friends || []); 
-        
-        // Mocking friends for display until you add the friends list endpoint
-        setFriends([
-            { id: "1", name: "Alice", email: "alice@ex.com" },
-            { id: "2", name: "Bob", email: "bob@ex.com" },
-        ] as any);
-      });
+      // Fetch friends from API
+      api.getMyFriends()
+        .then((res) => {
+          setFriends(res?.friends || []);
+        })
+        .catch(() => {
+          // fallback to empty list
+          setFriends([] as any);
+        });
     }
   }, [open]);
 

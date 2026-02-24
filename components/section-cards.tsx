@@ -1,6 +1,8 @@
 import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
 
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { api } from "@/lib/api"
 import {
   Card,
   CardAction,
@@ -11,13 +13,42 @@ import {
 } from "@/components/ui/card"
 
 export function SectionCards() {
+  const [balance, setBalance] = useState<number | null>(null)
+  const [settlementsCount, setSettlementsCount] = useState<number | null>(null)
+  const [friendsCount, setFriendsCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      try {
+        const b = await api.getMyBalance()
+        if (mounted) setBalance(Number((b?.balance?.amount ?? 0)))
+      } catch (e) {
+        console.warn('Balance fetch failed', e)
+      }
+      try {
+        const s = await api.getMySettlements()
+        if (mounted) setSettlementsCount(Array.isArray(s?.settlements) ? s.settlements.length : 0)
+      } catch (e) {
+        console.warn('Settlements fetch failed', e)
+      }
+      try {
+        const f = await api.getMyFriends()
+        if (mounted) setFriendsCount(Array.isArray(f?.friends) ? f.friends.length : 0)
+      } catch (e) {
+        console.warn('Friends fetch failed', e)
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [])
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Net Balance</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            {balance === null ? '—' : `$${balance.toFixed(2)}`}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -37,9 +68,9 @@ export function SectionCards() {
       </Card>
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>New Customers</CardDescription>
+          <CardDescription>Friends</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            {friendsCount === null ? '—' : friendsCount}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -61,7 +92,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Pending Settlements</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+            {settlementsCount === null ? '—' : settlementsCount}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">

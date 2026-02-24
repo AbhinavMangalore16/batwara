@@ -34,6 +34,9 @@ export const CustomNavbar = () => {
     setIsLoggedIn(false);
     router.push("/");
   }
+  const handleDashboard = () => {
+    router.push("/dashboard")
+  }
   const navItems = [
     {
       name: "Features",
@@ -61,9 +64,14 @@ export const CustomNavbar = () => {
           <NavItems items={navItems} />
           <div className="flex items-center gap-8">
             {isLoggedIn ? (
+              <div>
               <NavbarButton variant="primary" onClick={handleSignOut}>
                 Sign Out
               </NavbarButton>
+              <NavbarButton className="ml-4" variant="primary" onClick={handleDashboard}>
+                Dashboard
+              </NavbarButton>
+              </div>
             ) : (
               <NavbarButton variant="primary" href="/login">Login</NavbarButton>
             )}
@@ -95,7 +103,7 @@ export const CustomNavbar = () => {
               </a>
             ))}
             <div className="flex w-full flex-col gap-4">
-              {isLoggedIn ? (
+              {isLoggedIn ? (<> 
                 <NavbarButton
                   onClick={handleSignOut}
                   variant="primary"
@@ -103,6 +111,14 @@ export const CustomNavbar = () => {
                 >
                   Sign Out
                 </NavbarButton>
+                <NavbarButton
+                  onClick={handleDashboard}
+                  variant="primary"
+                  className="w-full ml-4"
+                >
+                  Dashboard
+                </NavbarButton>
+              </>
               ) : (
                 <>
                   <NavbarButton

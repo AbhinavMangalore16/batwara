@@ -25,13 +25,32 @@ async function fetcher<T>(endpoint: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // 1. Get Net Balance (Graph Logic)
-  getMyBalance: () => 
-    fetcher<{ balance: Balance }>('/balances/user/me'),
+    // Helper to read stored user id at call time
+    _getStoredUserId: (): string | null => {
+      try {
+        if (typeof window === 'undefined') return null;
+        const raw = localStorage.getItem('auth_user');
+        if (!raw) return null;
+        const u = JSON.parse(raw);
+        return u?.id || null;
+      } catch (e) {
+        return null;
+      }
+    },
 
-  // 2. Get Pending Settlements
-  getMySettlements: () => 
-    fetcher<{ settlements: Settlement[] }>('/settlements/user/me'),
+    // 1. Get Net Balance (Graph Logic)
+    getMyBalance: () => {
+      const id = typeof window !== 'undefined' ? (localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user') as string).id : null) : null;
+      const path = id ? `/balances/user/${id}` : '/balances';
+      return fetcher<{ balance: Balance }>(path);
+    },
+
+    // 2. Get Pending Settlements
+    getMySettlements: () => {
+      const id = typeof window !== 'undefined' ? (localStorage.getItem('auth_user') ? JSON.parse(localStorage.getItem('auth_user') as string).id : null) : null;
+      const path = id ? `/settlements/user/${id}` : '/settlements';
+      return fetcher<{ settlements: Settlement[] }>(path);
+    },
 
   // 3. Trigger Heap Algorithm (Optimize & Persist)
   optimizeDebts: () => 
@@ -61,10 +80,18 @@ export const api = {
   checkUserExists: (email: string) => 
     fetcher<{ exists: boolean, user?: User }>(`/users/check?email=${encodeURIComponent(email)}`),
 
+  // GET /api/users/search?name=...
+  searchUsers: (name: string) =>
+    fetcher<{ users: User[] }>(`/users/search?name=${encodeURIComponent(name)}`),
+
   // POST /api/users/add
   addFriend: (friendId: string) => 
     fetcher<{ message: string }>('/users/add', { 
       method: 'POST', 
       body: JSON.stringify({ friendId }) 
     }),
+  
+  // GET /api/users/friends
+  getMyFriends: () =>
+    fetcher<{ friends: User[] }>('/users/friends'),
 };

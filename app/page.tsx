@@ -25,27 +25,22 @@ export default function Home() {
   const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const raw = localStorage.getItem("auth_user");
-        if (raw) {
-          const user = JSON.parse(raw);
-          if (user && user.name) {
-            setName(user.name);
-          } else {
-            setName(null);
-          }
+    fetch("http://localhost:8000/api/users/me", {
+      credentials: "include"
+    })
+      .then(res => {
+        if (!res.ok) return null
+        return res.json()
+      })
+      .then(data => {
+        if (data?.name) {
+          setName(data.name)
         } else {
-          setName(null);
+          setName(null)
         }
-      } catch (e) {
-        setName(null);
-      }
-    };
-    checkAuth();
-    window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
-  }, []);
+      })
+      .catch(() => setName(null))
+  }, [])
 
 
 
