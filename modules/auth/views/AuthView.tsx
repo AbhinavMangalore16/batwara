@@ -19,12 +19,12 @@ import { Eye, EyeOff } from "lucide-react";
 
 
 const signInZodSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(4, { message: "Kindly enter password correctly! (minimum length 6)" })
+    email: z.email(),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" })
 })
 const signUpZodSchema = z.object({
     name: z.string().min(1, { message: "Name is required" }),
-    email: z.string().email(),
+    email: z.email(),
     password: z.string().min(6, { message: "Password is mandatory!" }),
     confirmPassword: z.string().min(6, { message: "Password required for confirmation" })
 }).refine((data) => data.password === data.confirmPassword, {
@@ -130,7 +130,7 @@ function SignInForm({ form, pending, error, onSubmit, onSwitch, socialDisabled, 
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t border-muted-foreground/30" />
                     </div>
-                    <span className="relative z-10 bg-white dark:bg-background px-2 text-muted-foreground">or continue with</span>
+                    <span className="relative z-10 bg-[#161B22] px-2 text-muted-foreground">or continue with</span>
                 </div>
                 <div className={isMobile ? "flex flex-row gap-2 w-full mb-4" : "flex flex-row gap-2 w-full mb-4"}>
                     <Button disabled={socialDisabled} variant="outline" className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-100 border-gray-300 shadow-sm text-black hover:text-black" onClick={socialHandlers?.google}><FcGoogle /></Button>
@@ -196,12 +196,12 @@ function SignUpForm({ form, pending, error, onSubmit, onSwitch, socialDisabled, 
                         </FormItem>
                     )} />
                 </div>
-                <Button disabled={pending} type="submit" className="w-full px-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white">Sign Up</Button>
+                <Button disabled={pending} type="submit" className="w-full px-4 mb-4 bg-blue-600 hover:bg-blue-700 text-white">{pending ? "Loading..." : "Sign In"}</Button>
                 <div className="relative text-center text-sm my-6">
                     <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t border-muted-foreground/30" />
                     </div>
-                    <span className="relative z-10 bg-white dark:bg-background px-2 text-muted-foreground">or continue with</span>
+                    <span className="relative z-10 bg-[#161B22] px-2 text-muted-foreground">or continue with</span>
                 </div>
                 <div className={isMobile ? "flex flex-row gap-2 w-full mb-4" : "flex flex-row gap-2 w-full mb-4"}>
                     <Button disabled={socialDisabled} variant="outline" className="flex-1 flex items-center justify-center gap-2 py-2 hover:bg-gray-100" onClick={socialHandlers?.google}><FcGoogle /></Button>
@@ -235,8 +235,8 @@ export default function AuthView() {
     const signUpForm = useForm<z.infer<typeof signUpZodSchema>>({
         resolver: zodResolver(signUpZodSchema),
         defaultValues: {
-            name: " ",
-            email: " ",
+            name: "",
+            email: "",
             password: "",
             confirmPassword: ""
         }
@@ -244,73 +244,85 @@ export default function AuthView() {
     const router = useRouter();
     const [error, setError] = useState<string | null>("")
     const [errorS, setErrorS] = useState<string | null>("")
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
     const [pending, setPending] = useState(false);
     const [isSigningUp, setIsSigningUp] = useState(false);
 
     const handleSignUp = async (data: z.infer<typeof signUpZodSchema>) => {
-        setErrorS(null)
-        setPending(true)
-        try {
-            const res = await fetch(process.env.NEXT_PUBLIC_BETTER_AUTH_URL + "/api/auth/sign-up/email", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Origin": process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000" },
-                body: JSON.stringify({
-                    name: data.name,
-                    email: data.email,
-                    password: data.password
-                })
-            });
-            const result = await res.json();
-            if (!res.ok) {
-                throw new Error(result.message || "Sign up failed");
-            }
-            localStorage.setItem("auth_token", result.token);
-            localStorage.setItem("auth_refresh_token", result.refreshToken);
-            localStorage.setItem("auth_user", JSON.stringify(result.user));
-            toast.success("Signed up successfully");
-            router.push("/");
+    setErrorS(null);
+    setPending(true);
+
+    try {
+        const API = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+
+        const res = await fetch(`${API}/api/auth/sign-up/email`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password
+        })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+        throw new Error(result.message || "Sign up failed");
         }
-        catch (err: unknown) {
-            setErrorS("Sign up failed. Please try again : " + (err as Error).message)
-        }
-        finally {
-            setPending(false)
-        }
+
+        toast.success("Signed up successfully");
+
+        setIsSigningUp(false);
+
+        toast.success("Account created! Please login.");
+
+    } catch (err: unknown) {
+        setErrorS("Sign up failed. Please try again: " + (err as Error).message);
+    } finally {
+        setPending(false);
     }
+    };
 
     const handleSignIn = async (data: z.infer<typeof signInZodSchema>) => {
-        setError(null);
-        setPending(true);
-        try {
-            const res = await fetch(process.env.NEXT_PUBLIC_BETTER_AUTH_URL + "/api/auth/sign-in/email", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Origin": process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000" },
-                body: JSON.stringify({
-                    email: data.email,
-                    password: data.password
-                })
-            });
-            const result = await res.json();
-            if (!res.ok) {
-                throw new Error(result.message || "Sign in failed");
-            }
-            router.refresh();
-            localStorage.setItem("auth_token", result.token);
-            localStorage.setItem("auth_refresh_token", result.refreshToken);
-            localStorage.setItem("auth_user", JSON.stringify(result.user));
-            toast.success("Signed in successfully");
-            router.push("/");
+    setError(null);
+    setPending(true);
+
+    try {
+        const API = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+
+        const res = await fetch(`${API}/api/auth/sign-in/email`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: data.email,
+            password: data.password
+        })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+        setError(result.message ?? "Invalid credentials");
+        return;
         }
-        catch (err: unknown) {
-            setError("Sign in failed. Please try again: " + (err as Error).message)
-        }
-        finally {
-            setPending(false)
-        }
+
+        toast.success("Signed in successfully");
+
+        router.refresh();
+        router.push("/dashboard");
+
+    } catch (err: unknown) {
+        setError("Sign in failed: " + (err as Error).message);
+    } finally {
+        setPending(false);
     }
+    };
 
 
     // const handleSocial = (provider: 'github' | 'google') => {

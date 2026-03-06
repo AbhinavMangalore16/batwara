@@ -1,0 +1,17 @@
+
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export async function apiFetch(path: string, options: RequestInit = {}){
+    const res = await fetch(`${API}${path}`, {
+        credentials: "include",
+        headers:{
+            "Content-Type": "application/json",
+            ...options.headers,
+        }, 
+        ...options
+    });
+    if (!res.ok){
+        throw new Error(`API request failed with status ${res.status}: ${res.statusText}`);
+    }
+    return res.json();
+}

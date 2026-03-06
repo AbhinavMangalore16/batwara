@@ -11,29 +11,38 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import useSWR, { mutate } from "swr"; // 👈 Import SWR
+import { apiFetch } from "@/lib/api"; // 👈 Import apiFetch
 
 export const CustomNavbar = () => {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // Check if user is logged in by checking for auth token
-    const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-    setIsLoggedIn(!!token);
-  }, []);
-  const handleSignOut = () =>{
+  // 1. Fetch real session state directly from the API (cached & synced!)
+  const { data: user, isLoading } = useSWR("/api/users/me", apiFetch);
+  const isLoggedIn = !!user;
+
+  const handleSignOut = async () => {
+    // If you have a backend logout endpoint (like /api/auth/signout), you should call it here:
+    // await apiFetch("/api/auth/signout", { method: "POST" });
+
+    // Clear fallbacks
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_refresh_token");
     localStorage.removeItem("auth_user");
     sessionStorage.removeItem("auth_token");
     sessionStorage.removeItem("auth_refresh_token");
     sessionStorage.removeItem("auth_user");
-    setIsLoggedIn(false);
+    
+    // 2. Tell SWR to instantly clear the user cache globally
+    mutate("/api/users/me", null, false);
+    
+    setIsMobileMenuOpen(false);
     router.push("/");
-  }
+  };
+
   const navItems = [
     {
       name: "Features",
@@ -51,16 +60,20 @@ export const CustomNavbar = () => {
       name: "Contact",
       link: "#contact",
     }
-  ]
+  ];
+
   return (
     <div className="sticky top-0 z-50 w-full">
-    <Navbar className="sticky top-0 z-50">
+      <Navbar className="sticky top-0 z-50">
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
           <div className="flex items-center gap-8">
-            {isLoggedIn ? (
+            {isLoading ? (
+              // Show a small loading pulse while checking auth
+              <div className="w-24 h-10 animate-pulse bg-neutral-200 dark:bg-neutral-800 rounded-lg"></div>
+            ) : isLoggedIn ? (
               <NavbarButton variant="primary" onClick={handleSignOut}>
                 Sign Out
               </NavbarButton>
@@ -69,7 +82,7 @@ export const CustomNavbar = () => {
             )}
           </div>
         </NavBody>
- 
+
         {/* Mobile Navigation */}
         <MobileNav>
           <MobileNavHeader>
@@ -79,7 +92,7 @@ export const CustomNavbar = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             />
           </MobileNavHeader>
- 
+
           <MobileNavMenu
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
@@ -94,8 +107,10 @@ export const CustomNavbar = () => {
                 <span className="block">{item.name}</span>
               </a>
             ))}
-            <div className="flex w-full flex-col gap-4">
-              {isLoggedIn ? (
+            <div className="flex w-full flex-col gap-4 mt-4">
+              {isLoading ? (
+                <div className="w-full h-10 animate-pulse bg-neutral-200 dark:bg-neutral-800 rounded-lg"></div>
+              ) : isLoggedIn ? (
                 <NavbarButton
                   onClick={handleSignOut}
                   variant="primary"
@@ -109,8 +124,9 @@ export const CustomNavbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     variant="primary"
                     className="w-full"
+                    href="/login"
                   >
-                    <Link href='/login'>Login</Link>
+                    Login
                   </NavbarButton>
                   <NavbarButton
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -125,6 +141,6 @@ export const CustomNavbar = () => {
           </MobileNavMenu>
         </MobileNav>
       </Navbar>
-      </div>
-  )
-}
+    </div>
+  );
+};

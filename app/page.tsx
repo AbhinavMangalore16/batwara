@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
+import Link from "next/link"; // 👈 Import Link
 import { FeaturesSectionDemo1 } from "@/components/features-section-demo-1";
 import { CustomNavbar } from "@/components/ui/custom/CustomNavbar";
 import { CustomTestimonies } from "@/components/ui/custom/CustomTestimonies";
@@ -8,7 +9,7 @@ import { Hero } from "@/components/ui/custom/Hero";
 import { FlipWords } from "@/components/ui/flip-words";
 import { HeroHighlight, Highlight } from "@/components/ui/hero-highlight";
 import { motion } from "motion/react";
-import { HelpCircle, Zap, Clock, ShieldCheck } from "lucide-react";
+import { HelpCircle, Zap, Clock, ShieldCheck, ArrowRight } from "lucide-react"; // 👈 Added ArrowRight
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { FeaturesSection } from "@/components/ui/custom/FeaturesSection";
 import { HeroProduct } from "@/components/ui/custom/HeroProduct";
@@ -19,76 +20,52 @@ import { TestimonialTitle } from "@/components/ui/custom/TestimonialTitle";
 import { CustomFeatures } from "@/components/ui/custom/CustomFeatures";
 import { Ending } from "@/components/ui/custom/Ending";
 import dynamic from "next/dynamic";
-
+import useSWR from "swr";
+import { apiFetch } from "@/lib/api";
 
 export default function Home() {
-  const [name, setName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const raw = localStorage.getItem("auth_user");
-        if (raw) {
-          const user = JSON.parse(raw);
-          if (user && user.name) {
-            setName(user.name);
-          } else {
-            setName(null);
-          }
-        } else {
-          setName(null);
-        }
-      } catch (e) {
-        setName(null);
-      }
-    };
-    checkAuth();
-    window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
-  }, []);
-
-
+  const { data: user } = useSWR("/api/users/me", apiFetch);
+  const name = user?.name || null;
 
   return (
     <>
       <div className="w-full">
         <CustomNavbar />
+        
+        {/* 👇 Updated Logged-in Banner */}
         {name && (
-          <div className="px-6 py-4">
-            <p className="text-lg font-semibold text-black dark:text-white">Hello, {name}</p>
+          <div className="w-full bg-emerald-500/10 border-b border-emerald-500/20">
+            <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm md:text-base font-medium text-emerald-600 dark:text-emerald-400">
+                Welcome back, <span className="font-bold">{name}!</span> Ready to settle up?
+              </p>
+              <Link 
+                href="/dashboard"
+                className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 text-sm font-bold px-5 py-2 rounded-xl transition-colors shadow-sm"
+              >
+                Go to Dashboard <ArrowRight size={16} />
+              </Link>
+            </div>
           </div>
         )}
-        {/* <HeroHighlight>
-      <motion.h1
-        initial={{
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: [20, -5, 0],
-        }}
-        transition={{
-          duration: 0.5,
-          ease: [0.4, 0.0, 0.2, 1],
-        }}
-        className="text-2xl px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
-      >
-        {/* <Highlight className="text-black dark:text-white"> */}
-        {/* </Highlight> */}
-        {/* &nbsp; <FlipWords words={["family", "friends", "partner", "anyone!"]} className="text-5xl"/>
-      </motion.h1> */}
+        
         <Hero />
         <HeroProduct />
+        
         <section id="features">
           <FeaturesSection />
         </section>
+        
         <section id="pricing">
           <PricingSection />
         </section>
+        
         <section id="testimonials">
           <TestimonialTitle />
         </section>
-          <CustomTestimonies />
+        
+        <CustomTestimonies />
+        
         <section id="contact">
           <ContactSection />
         </section>
