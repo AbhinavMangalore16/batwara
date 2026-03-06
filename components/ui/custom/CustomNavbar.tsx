@@ -77,6 +77,10 @@ export const CustomNavbar = () => {
               <NavbarButton variant="primary" onClick={handleSignOut}>
                 Sign Out
               </NavbarButton>
+              <NavbarButton className="ml-4" variant="primary" onClick={handleDashboard}>
+                Dashboard
+              </NavbarButton>
+              </div>
             ) : (
               <NavbarButton variant="primary" href="/login">Login</NavbarButton>
             )}
@@ -118,6 +122,14 @@ export const CustomNavbar = () => {
                 >
                   Sign Out
                 </NavbarButton>
+                <NavbarButton
+                  onClick={handleDashboard}
+                  variant="primary"
+                  className="w-full ml-4"
+                >
+                  Dashboard
+                </NavbarButton>
+              </>
               ) : (
                 <>
                   <NavbarButton
