@@ -99,7 +99,7 @@ export default function FriendsPage() {
             <IconSearch size={20} className="text-neutral-400" />
             <input
               type="text"
-              placeholder="Search users by name..."
+              placeholder="Search users by their email address..."
               className="bg-transparent outline-none flex-1 text-white placeholder-neutral-500"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
