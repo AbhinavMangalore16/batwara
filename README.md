@@ -75,11 +75,30 @@ Balances are computed on the fly: `balance = totalReceived - totalOwed`.
 
 ---
 
-## 🚀 The Settlement Algorithm
+## � End‑User Workflow
+
+From a user’s point of view, every backend module supports a simple, familiar flow:
+
+1. **Add people to a group.**
+   - The UI calls user/group routes to register you and your friends. Each friend becomes a `Person` node in Neo4j and a record in PostgreSQL.
+2. **Log an expense.**
+   - Fill out the form, select who paid, choose equal/custom/itemised split, and submit. The frontend posts to `/api/expenses/makeBill`. The service writes a `bill` row and creates `OWES` edges for everyone’s share.
+3. **Check your balance.**
+   - The dashboard hits `/api/expenses/balances/user/{userId}` which inspects the Neo4j graph and returns your current net position and outstanding edges.
+4. **Optimize & settle.**
+   - Tap “Preview settlement” to call `/api/expenses/settlements/optimized` and see a heap‑algorithm suggestion. If you like it, press “Run & save” (POST `/api/expenses/settlements/optimized/persist`), which stores the simplified transfers and updates the graph.
+5. **Mark a transfer paid.**
+   - When money changes hands, mark a settlement as paid via `/api/expenses/settlements/{id}/pay`. The backend flags the row and clears the corresponding graph edge, adjusting balances.
+
+The result for the user is a clean, real‑time view of who owes what and the ability to instantly reduce a tangled web of debts to the fewest possible payments.
+
+---
+
+## �🚀 The Settlement Algorithm
 
 Here's the magic:
 
-1. Compute each users net balance from the Neo4j graph.
+1. Compute each user's net balance from the Neo4j graph.
 2. Split the group into **Creditors** (positive balance) and **Debtors** (negative balance).
 3. Use two heaps to efficiently match the highest creditor with the highest debtor.
 4. Record a single settlement edge for that pair, adjust balances, and repeat.
