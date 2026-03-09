@@ -1,6 +1,6 @@
 # Batwara -Graph-Powered Expense Splitter
 
-**Batwara** (Hindi for "sharing" or "division") is my antidote to the chaos that erupts after group dinners, trips, and shared subscriptions. If you've ever had to untangle five different debts and wished for a calculator and peace treaty rolled into one, this app is for you.
+**Batwara** (Hindi for "sharing" or "division") is our antidote to the chaos that erupts after group dinners, trips, and shared subscriptions. If you've ever had to untangle five different debts and wished for a calculator and peace treaty rolled into one, this app is for you.
 
 Unlike traditional bill-splitting apps that stuff every relationship into a rigid table, Batwara embraces complexity by using two databases:
 
