@@ -252,9 +252,7 @@ export default function AuthView() {
     setPending(true);
 
     try {
-        
-
-        const res = await fetch(`/api/auth/sign-up/email`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sign-up/email`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -291,7 +289,7 @@ export default function AuthView() {
     setPending(true);
 
     try {
-        const res = await fetch(`/api/auth/sign-in/email`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sign-in/email`, {
         method: "POST",
         credentials: "include",
         headers: {

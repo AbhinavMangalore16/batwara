@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Batwara -Graph-Powered Expense Splitter
 
-## Getting Started
+**Batwara** (Hindi for "sharing" or "division") is my antidote to the chaos that erupts after group dinners, trips, and shared subscriptions. If you've ever had to untangle five different debts and wished for a calculator and peace treaty rolled into one, this app is for you.
 
-First, run the development server:
+Unlike traditional bill-splitting apps that stuff every relationship into a rigid table, Batwara embraces complexity by using two databases:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Neo4j** to map friendships and debts as a living graph. Debts are edges, people are nodes, and relationships update in real time.
+- **PostgreSQL** as the immutable ledger of receipts, splits, and final settlements.
+
+A clever heap-based algorithm then takes that messy graph, crunches numbers, and spits out the cleanest, simplest set of payments possible. No more five payment apps open at once.
+
+---
+
+## ✨ What Makes Batwara Tick?
+
+### 📊 Graph‑Based Debt Tracking
+Neo4j naturally represents the `OWES` and `SETTLEMENT` edges between users. You can query the graph to see who owes whom at any moment.
+
+### 🧠 Smart Debt Simplification
+Instead of a tangle of IOUs, Batwara runs a Min/Max Heap algorithm to match the biggest debtor with the biggest creditor and reduce the whole web to the fewest transfers.
+
+### 💸 Flexible Splitting Options
+Need an equal share, exact amounts, or a percentage? Batwara handles all three with ease.
+
+### 🗄️ Dual‑Database Architecture
+PostgreSQL stores immutable records (`bills`, `splits`, `settlements`) while Neo4j powers dynamic balance calculations and graph traversals.
+
+### 💻 Clean React UI
+A minimal dashboard shows your net balance and who you need to pay next, without fluff.
+
+---
+
+## 🏗 Architecture Overview
+
+```
+┌───────────────────────────────────────┐
+│               API Layer               │
+│ POST /makeBill  GET /balances  POST /persist │
+└─────────────┬─────────────────────────┘
+              │
+     ┌────────▼────────┐
+     │                 │
+ ┌───▼──────┐      ┌───▼──────┐
+ │PostgreSQL│      │  Neo4j   │
+ ├──────────┤      ├──────────┤
+ │ bills    │      │ OWES     │
+ │ splits   │      │ SETTLEMENT│
+ │settlement│      │ Person   │
+ └──────────┘      └──────────┘
+     │                 │
+     └────────┬────────┘
+              │
+     ┌────────▼───────────┐
+     │  Optimization      │
+     │   Algorithm        │
+     │  (Heap-based)      │
+     └────────────────────┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🗄️ Data Model
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**PostgreSQL** holds the permanent records:
+- `bill` — who paid, amount, split method
+- `split` — breakdown of the bill
+- `settlement` — simplified payouts ready to be executed
 
-## Learn More
+**Neo4j** maps the relationships:
+- `Person` nodes
+- `[OWES]` edges for raw debts
+- `[SETTLEMENT]` edges for optimized transfers
 
-To learn more about Next.js, take a look at the following resources:
+Balances are computed on the fly: `balance = totalReceived - totalOwed`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 The Settlement Algorithm
 
-## Deploy on Vercel
+Here's the magic:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Compute each users net balance from the Neo4j graph.
+2. Split the group into **Creditors** (positive balance) and **Debtors** (negative balance).
+3. Use two heaps to efficiently match the highest creditor with the highest debtor.
+4. Record a single settlement edge for that pair, adjust balances, and repeat.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The result? A tiny list of direct payments that settle everyone up in one go.
+
+---
+
+## 📡 Core API Endpoints
+
+| Purpose                     | Endpoint                                              |
+|----------------------------|-------------------------------------------------------|
+| Log a new expense          | `POST /api/expenses/makeBill`                         |
+| Get user balance           | `GET /api/expenses/balances/user/{userId}`            |
+| Preview optimized debts    | `GET /api/expenses/settlements/optimized`            |
+| Persist optimized debts    | `POST /api/expenses/settlements/optimized/persist`   |
+| Mark settlement paid       | `POST /api/expenses/settlements/{id}/pay`            |
+
+---
+
+## 💻 Tech Stack
+
+- **Frontend:** React, Tailwind CSS, Lucide Icons
+- **Backend:** Node.js, Express.js
+- **Databases:** PostgreSQL + Neo4j
+- **Algorithms:** Min/Max Heaps, Graph Traversal
+
+---
+
+## 🚀 Run It Locally
+
+```bash
+# clone
+git clone https://github.com/yourusername/batwara.git
+cd batwara
+
+# databases
+# PostgreSQL must be running locally
+# Neo4j AuraDB or Desktop should be running
+
+# env vars (/backend/.env)
+PG_USER=your_pg_user
+PG_PASS=your_pg_pass
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASS=your_neo4j_pass
+
+# start backend
+cd backend
+npm install
+npm run dev
+
+# start frontend
+cd ../frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🔮 Future Scope
+
+- **Mobile apps:** React Native or Flutter clients for iOS/Android.
+- **Real‑time sync:** WebSockets to push live balance updates.
+- **Group chat integration:** Slack/WhatsApp bots to log expenses on the fly.
+- **Cryptocurrency support:** Let users settle in crypto or stablecoins.
+- **Machine learning:** Predict who'll pay next based on history.
+- **Multi‑currency:** Automatic conversion for international trips.
+- **Open API:** Let third-party services plug into Batwara's graph.
+
+---
+
+Thanks for checking out Batwara — here's to ending post‑dinner math wars forever! 
