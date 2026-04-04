@@ -6,8 +6,6 @@ import useSWR, { mutate } from "swr";
 import {
   IconBrandTabler,
   IconUser,
-  IconSettings,
-  IconLogout,
   IconUsers,
   IconReceipt,
   IconArrowUpRight,
@@ -15,6 +13,9 @@ import {
   IconPlus,
   IconCheck,
   IconX,
+  IconPercentage,
+  IconCurrencyRupee,
+  IconEqual,
 } from "@tabler/icons-react";
 import HLoader from "@/modules/extras/loader";
 import {
@@ -27,11 +28,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-// Helper to format currency (assuming backend sends paise/cents)
 const formatCurrency = (amount: number = 0) => {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -42,35 +41,19 @@ const formatCurrency = (amount: number = 0) => {
 
 export default function DashboardLayout() {
   const router = useRouter();
-  const [open, setOpen] = useState(true);
-
-
-  // 🔐 Auth check
   const { data: user, isLoading } = useSWR("/api/users/me", apiFetch);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
 
-  const links = [
-    { label: "Dashboard", href: "/dashboard", icon: <IconBrandTabler /> },
-    { label: "Friends", href: "/friends", icon: <IconUsers /> },
-    { label: "Bills", href: "/bills", icon: <IconReceipt /> },
-    { label: "Landing", href: "/", icon: <IconUser /> },
-    // { label: "Profile", href: "/profile", icon: <IconUser /> },
-    // { label: "Settings", href: "/settings", icon: <IconSettings /> },
-    { label: "Logout", href: "/login", icon: <IconLogout /> },
-  ];
-
   if (isLoading) return <HLoader />;
   if (!user) return null;
 
   return (
     <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Main Dashboard Content */}
       <MainDashboard user={user} />
     </div>
   );
@@ -78,230 +61,86 @@ export default function DashboardLayout() {
 
 function MainDashboard({ user }: { user: any }) {
   const [isExpenseOpen, setIsExpenseOpen] = useState(false);
-  // 1. Fetching data
   const { data: balances } = useSWR("/api/expenses/balances/me", apiFetch);
   const { data: settlementsData } = useSWR("/api/expenses/settlements/me", apiFetch);
   const { data: chartData } = useSWR("/api/expenses/chart?period=month", apiFetch);
-  const { data: yearlyChartData } = useSWR(
-    "/api/expenses/chart?period=year",
-    apiFetch
-  );
+  const { data: yearlyChartData } = useSWR("/api/expenses/chart?period=year", apiFetch);
 
-  // 2. Parse balances safely
   const myBalance = balances?.balance !== undefined
     ? balances
     : balances?.balances?.[user.id] || { balance: 0, owes: 0, receives: 0 };
 
-  // 3. Parse settlements (Separated as per your backend schema)
   const { owesTo = [], receivesFrom = [] } = settlementsData?.settlements ?? {};
 
-  // 4. Process chart data
-  // derive chart-friendly structure; always return the same shape
-  const formattedChartData = useMemo<{
-    data: any[];
-    thisMonth: number;
-  }>(() => {
-    if (!chartData) {
-      return { data: [], thisMonth: 0 };
-    }
-
+  const formattedChartData = useMemo(() => {
+    if (!chartData) return { data: [], thisMonth: 0 };
     const merged: Record<string, any> = {};
     let currentMonthTotal = 0;
-
     chartData.paidByMe?.forEach((item: any) => {
-      merged[item.date] = {
-        date: item.date,
-        Paid: item.totalAmount / 100,
-      };
+      merged[item.date] = { date: item.date, Paid: item.totalAmount / 100 };
       currentMonthTotal += item.totalAmount;
     });
-
     return {
-      data: Object.values(merged).sort(
-        (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
-      ),
+      data: Object.values(merged).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()),
       thisMonth: currentMonthTotal,
     };
   }, [chartData]);
-  const { yearlyTotal } = useMemo(() => {
-    if (!yearlyChartData) return { yearlyTotal: 0 };
 
-    let total = 0;
-
-    yearlyChartData.paidByMe?.forEach((item: any) => {
-      total += item.totalAmount;
-    });
-
-    return { yearlyTotal: total };
+  const yearlyTotal = useMemo(() => {
+    if (!yearlyChartData) return 0;
+    return yearlyChartData.paidByMe?.reduce((acc: number, item: any) => acc + item.totalAmount, 0) || 0;
   }, [yearlyChartData]);
 
   return (
     <div className="flex-1 p-8 space-y-6 overflow-y-auto">
-      {/* Header aligned with image */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-4xl font-extrabold text-emerald-400 tracking-tight">
-          Dashboard
-        </h1>
-    <button
-      onClick={() => setIsExpenseOpen(true)}
-      className="flex items-center gap-2 bg-neutral-800 hover:bg-neutral-700 ..."
-    >
-      <IconPlus size={18} />
-      Add expense
-    </button>
-        <AddExpenseModal
-      open={isExpenseOpen}
-      onClose={() => setIsExpenseOpen(false)}
-      user={user}
-    />
+        <h1 className="text-4xl font-extrabold text-emerald-400 tracking-tight">Dashboard</h1>
+        <button
+          onClick={() => setIsExpenseOpen(true)}
+          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20"
+        >
+          <IconPlus size={18} />
+          Add expense
+        </button>
+        <AddExpenseModal open={isExpenseOpen} onClose={() => setIsExpenseOpen(false)} user={user} />
       </div>
 
-      {/* --- Top Summary Cards --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <SummaryCard
-          title="Total Balance"
-          amount={myBalance.balance}
-          subtitle={myBalance.balance >= 0 ? "You are owed money" : "You owe money"}
-          type={myBalance.balance >= 0 ? "positive" : "negative"}
-        />
-        <SummaryCard
-          title="You are owed"
-          amount={myBalance.receives}
-          subtitle={`From ${receivesFrom.length} people`}
-          type="positive"
-        />
-        <SummaryCard
-          title="You owe"
-          amount={myBalance.owes}
-          subtitle={`To ${owesTo.length} people`}
-          type="negative"
-        />
+        <SummaryCard title="Total Balance" amount={myBalance.balance} subtitle={myBalance.balance >= 0 ? "You are owed" : "You owe"} type={myBalance.balance >= 0 ? "positive" : "negative"} />
+        <SummaryCard title="You are owed" amount={myBalance.receives} subtitle={`From ${receivesFrom.length} people`} type="positive" />
+        <SummaryCard title="You owe" amount={myBalance.owes} subtitle={`To ${owesTo.length} people`} type="negative" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* --- Left Column: Expense Summary (Chart) --- */}
         <Section title="Expense Summary" className="lg:col-span-2">
-          
-          {/* Chart Summary Blocks */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="bg-neutral-800/50 p-5 rounded-2xl border border-neutral-800">
               <p className="text-sm text-neutral-400 mb-1">Total this month</p>
-              <p className="text-3xl font-bold text-white">
-                {formatCurrency(formattedChartData.thisMonth || 0)}
-              </p>
+              <p className="text-3xl font-bold text-white">{formatCurrency(formattedChartData.thisMonth)}</p>
             </div>
             <div className="bg-neutral-800/50 p-5 rounded-2xl border border-neutral-800">
               <p className="text-sm text-neutral-400 mb-1">Total this year</p>
-              {/* Note: Placeholder until you fetch yearly data from backend */}
-              <p className="text-3xl font-bold text-white">
-                {formatCurrency((yearlyTotal || 0))} 
-              </p>
+              <p className="text-3xl font-bold text-white">{formatCurrency(yearlyTotal)}</p>
             </div>
           </div>
-
-          <div className="h-[300px] w-full mt-4">
-            {!chartData ? (
-              <p className="text-neutral-500 animate-pulse">Loading chart...</p>
-            ) : formattedChartData.data.length === 0 ? (
-              <p className="text-neutral-500">No spending data available.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={formattedChartData.data}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#888" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 12 }} 
-                    dy={10} 
-                  />
-                  <YAxis 
-                    stroke="#888" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 12 }} 
-                    dx={-10}
-                  />
-                  <Tooltip
-                    cursor={{ fill: "#222" }}
-                    contentStyle={{ backgroundColor: "#111", border: "1px solid #333", borderRadius: "8px" }}
-                  />
-                  <Bar dataKey="Paid" fill="#34d399" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={formattedChartData.data}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                <XAxis dataKey="date" stroke="#888" tick={{ fontSize: 12 }} dy={10} axisLine={false} tickLine={false} />
+                <YAxis stroke="#888" tick={{ fontSize: 12 }} dx={-10} axisLine={false} tickLine={false} />
+                <Tooltip cursor={{ fill: "#222" }} contentStyle={{ backgroundColor: "#111", border: "1px solid #333", borderRadius: "8px" }} />
+                <Bar dataKey="Paid" fill="#34d399" radius={[4, 4, 0, 0]} maxBarSize={50} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </Section>
 
-        {/* --- Right Column: Balance Details --- */}
-        <Section 
-          title="Balance Details" 
-          headerRight={<button className="text-sm text-neutral-400 hover:text-white transition">View all ›</button>}
-          className="lg:col-span-1"
-        >
+        <Section title="Balance Details" headerRight={<button className="text-sm text-neutral-400 hover:text-white transition">View all ›</button>} className="lg:col-span-1">
           <div className="space-y-6 mt-4">
-            
-            {/* Owed to you section */}
-            <div>
-              <div className="flex items-center gap-2 text-emerald-400 mb-4">
-                <IconArrowUpRight size={18} />
-                <h3 className="text-sm font-medium">Owed to you</h3>
-              </div>
-              
-              {receivesFrom.length === 0 ? (
-                <p className="text-sm text-neutral-500 pl-6">No pending receivables.</p>
-              ) : (
-                <ul className="space-y-4">
-                  {receivesFrom.map((s: any, idx: number) => (
-                    <li key={idx} className="flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
-                          {s.name ? s.name.charAt(0).toUpperCase() : "?"}
-                        </div>
-                        <span className="text-sm font-medium text-neutral-200">{s.name}</span>
-                      </div>
-                      <span className="font-bold text-emerald-400">
-                        {formatCurrency(s.amount)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
+            <BalanceList title="Owed to you" items={receivesFrom} icon={<IconArrowUpRight size={18} />} color="text-emerald-400" />
             <hr className="border-neutral-800" />
-
-            {/* You owe section */}
-            <div>
-              <div className="flex items-center gap-2 text-red-400 mb-4">
-                <IconArrowDownLeft size={18} />
-                <h3 className="text-sm font-medium">You owe</h3>
-              </div>
-
-              {owesTo.length === 0 ? (
-                <p className="text-sm text-neutral-500 pl-6">You owe nothing.</p>
-              ) : (
-                <ul className="space-y-4">
-                  {owesTo.map((s: any, idx: number) => (
-                    <li key={idx} className="flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-rose-600 flex items-center justify-center text-xs font-bold text-white">
-                          {s.name ? s.name.charAt(0).toUpperCase() : "?"}
-                        </div>
-                        <span className="text-sm font-medium text-neutral-200">{s.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-bold text-red-400">
-                          {formatCurrency(s.amount)}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
+            <BalanceList title="You owe" items={owesTo} icon={<IconArrowDownLeft size={18} />} color="text-red-400" />
           </div>
         </Section>
       </div>
@@ -309,253 +148,251 @@ function MainDashboard({ user }: { user: any }) {
   );
 }
 
-// --- Reusable UI Components ---
+// --- Specialized Components ---
 
-function SummaryCard({
-  title,
-  amount,
-  subtitle,
-  type,
-}: {
-  title: string;
-  amount: number;
-  subtitle: string;
-  type: "positive" | "negative" | "neutral";
-}) {
-  const isPositive = type === "positive";
-  const colorClass = isPositive ? "text-emerald-400" : type === "negative" ? "text-red-400" : "text-white";
-
+function BalanceList({ title, items, icon, color }: any) {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl flex flex-col justify-between h-36 shadow-sm">
-      <h3 className="text-neutral-400 text-sm font-medium">{title}</h3>
-      <div className="my-2">
-        <p className={`text-3xl font-bold ${colorClass}`}>
-          {isPositive && amount > 0 ? "+" : ""}
-          {formatCurrency(amount)}
-        </p>
+    <div>
+      <div className={cn("flex items-center gap-2 mb-4", color)}>
+        {icon}
+        <h3 className="text-sm font-medium">{title}</h3>
       </div>
-      <p className="text-xs text-neutral-500">{subtitle}</p>
+      {items.length === 0 ? (
+        <p className="text-sm text-neutral-500 pl-6">No pending items.</p>
+      ) : (
+        <ul className="space-y-4">
+          {items.map((s: any, idx: number) => (
+            <li key={idx} className="flex items-center justify-between group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-xs font-bold text-white border border-neutral-700">
+                  {s.name?.charAt(0).toUpperCase()}
+                </div>
+                <span className="text-sm font-medium text-neutral-200">{s.name}</span>
+              </div>
+              <span className={cn("font-bold", color)}>{formatCurrency(s.amount)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-function Section({
-  title,
-  children,
-  className = "",
-  headerRight
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-  headerRight?: React.ReactNode;
-}) {
-  return (
-    <div className={cn("bg-neutral-900 p-6 rounded-2xl border border-neutral-800 flex flex-col", className)}>
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-bold text-white">{title}</h2>
-        {headerRight}
-      </div>
-      <div className="flex-1">{children}</div>
-    </div>
-  );
-}
-
-function AddExpenseModal({
-  open,
-  onClose,
-  user,
-}: {
-  open: boolean;
-  onClose: () => void;
-  user: any;
-}) {
+function AddExpenseModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: any }) {
   const [description, setDescription] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
+  const [splitType, setSplitType] = useState<"equal" | "exact" | "percentage">("equal");
+  const [includeSelf, setIncludeSelf] = useState(true);
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
+  const [customValues, setCustomValues] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch friends
   const { data: friendsData } = useSWR("/api/users/friends", apiFetch);
-  
-  const friends = useMemo(() => {
-    if (!friendsData) return [];
-    if (Array.isArray(friendsData)) return friendsData;
-    if (Array.isArray(friendsData.friends)) return friendsData.friends;
-    if (Array.isArray(friendsData.data)) return friendsData.data;
-    return [];
-  }, [friendsData]);
+  const friends = friendsData?.friends || friendsData?.data || [];
 
-  if (!open) return null;
+  const participants = useMemo(() => {
+    const list = friends.filter((f: any) => selectedFriends.includes(f.id));
+    if (includeSelf) return [{ id: user.id, name: "You" }, ...list];
+    return list;
+  }, [selectedFriends, includeSelf, friends, user.id]);
 
-  const toggleFriend = (id: string) => {
-    setSelectedFriends((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
-  };
+  const validation = useMemo(() => {
+    const totalPaise = Number(totalAmount) * 100;
+    if (splitType === "equal") return { valid: participants.length > 0, diff: 0 };
+    
+    const sum = Object.values(customValues).reduce((acc, v) => acc + Number(v), 0);
+    if (splitType === "exact") return { valid: Math.abs((sum * 100) - totalPaise) < 1, diff: totalPaise - (sum * 100) };
+    if (splitType === "percentage") return { valid: Math.abs(sum - 100) < 0.1, diff: 100 - sum };
+    return { valid: false, diff: 0 };
+  }, [splitType, customValues, totalAmount, participants]);
 
   const handleSubmit = async () => {
-    if (!description || !totalAmount || selectedFriends.length === 0) return;
+    if (!description || !totalAmount || !validation.valid) return;
     setIsSubmitting(true);
 
+    const splitData = {
+      splitType,
+      data: participants.map((p) => ({
+        userId: p.id,
+        ...(splitType === "exact" && { amount: Number(customValues[p.id] || 0) * 100 }),
+        ...(splitType === "percentage" && { percentage: Number(customValues[p.id] || 0) }),
+        ...(splitType === "equal" && { splitAmount: 0 }),
+      })),
+    };
+
     try {
-      // Note: Changed from /create to /makeBill to match your backend router
       await apiFetch("/api/expenses/makeBill", {
         method: "POST",
-        body: JSON.stringify({
-          description,
-          totalAmount: Number(totalAmount) * 100, // convert to paise
-          splitData: {
-            splitType: "equal",
-            // Include the current user + selected friends in the split
-            data: [user.id, ...selectedFriends].map((id) => ({
-              userId: id,
-              splitAmount: 0 // Handled by backend for "equal"
-            })),
-          },
-        }),
+        body: JSON.stringify({ description, totalAmount: Number(totalAmount) * 100, splitData }),
       });
 
-      // Tell SWR to re-fetch dashboard data so UI updates instantly!
       mutate("/api/expenses/balances/me");
       mutate("/api/expenses/settlements/me");
       mutate("/api/expenses/chart?period=month");
-      mutate("/api/expenses/chart?period=year");
-
-      // Reset & Close
-      setDescription("");
-      setTotalAmount("");
-      setSelectedFriends([]);
       onClose();
+      // Reset logic...
     } catch (error) {
-      console.error("Failed to create bill:", error);
-      alert("Failed to create expense. Please try again.");
+      alert("Failed to create bill.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (!open) return null;
+
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
-      <div 
-        className="bg-[#0f0f0f] w-full max-w-md p-6 rounded-3xl border border-neutral-800 shadow-2xl flex flex-col"
-        onClick={(e) => e.stopPropagation()} // Prevent clicking inside from closing modal
-      >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white tracking-tight">Add Expense</h2>
-          <button 
-            onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-full transition-colors"
-          >
-            <IconX size={20} />
-          </button>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-[#0f0f0f] w-full max-w-lg p-8 rounded-[2.5rem] border border-neutral-800 shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold">Add Expense</h2>
+          <button onClick={onClose} className="p-2 text-neutral-500 hover:text-white transition-colors"><IconX size={24} /></button>
         </div>
 
-        {/* Form Fields */}
-        <div className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">
-              What was this for?
-            </label>
+        <div className="space-y-6">
+          {/* Top Inputs */}
+          <div className="grid grid-cols-1 gap-4">
             <input
               type="text"
-              placeholder="e.g. Dinner at generic restaurant"
+              placeholder="What was this for?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-3.5 bg-neutral-900 border border-neutral-800 rounded-xl text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="w-full p-4 bg-neutral-900 border border-neutral-800 rounded-2xl focus:border-emerald-500 outline-none transition-all"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">
-              Total Amount
-            </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-medium">₹</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500">₹</span>
               <input
                 type="number"
                 placeholder="0.00"
-                min="0"
-                step="0.01"
                 value={totalAmount}
                 onChange={(e) => setTotalAmount(e.target.value)}
-                className="w-full p-3.5 pl-8 bg-neutral-900 border border-neutral-800 rounded-xl text-white placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                className="w-full p-4 pl-10 bg-neutral-900 border border-neutral-800 rounded-2xl focus:border-emerald-500 outline-none transition-all text-xl font-bold"
               />
             </div>
           </div>
 
-          {/* Friend Selection */}
-          <div>
-            <div className="flex items-center justify-between mb-2 ml-1">
-              <label className="text-sm font-medium text-neutral-400">
-                Split equally with...
-              </label>
-              <span className="text-xs text-neutral-500 font-medium bg-neutral-900 px-2 py-1 rounded-md">
-                {selectedFriends.length} selected
-              </span>
-            </div>
+          {/* Split Type Tabs */}
+          <div className="flex bg-neutral-900 p-1 rounded-xl gap-1">
+            {[
+              { id: "equal", label: "Equally", icon: <IconEqual size={16} /> },
+              { id: "exact", label: "Amounts", icon: <IconCurrencyRupee size={16} /> },
+              { id: "percentage", label: "Percentages", icon: <IconPercentage size={16} /> }
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setSplitType(t.id as any)}
+                className={cn("flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all", 
+                  splitType === t.id ? "bg-neutral-800 text-emerald-400 shadow-sm" : "text-neutral-500 hover:text-neutral-300")}
+              >
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
 
-            <div className="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-              {friends.length === 0 ? (
-                <p className="text-sm text-neutral-500 p-4 text-center border border-dashed border-neutral-800 rounded-xl">
-                  No friends found. Add some friends first!
-                </p>
-              ) : (
-                friends.map((friend: any) => {
-                  const isSelected = selectedFriends.includes(friend.id);
-                  return (
-                    <div
-                      key={friend.id}
-                      onClick={() => toggleFriend(friend.id)}
-                      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border ${
-                        isSelected
-                          ? "bg-emerald-500/10 border-emerald-500/50"
-                          : "bg-neutral-900 border-transparent hover:border-neutral-700"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                          isSelected ? "bg-emerald-600 text-white" : "bg-neutral-700 text-neutral-300"
-                        }`}>
-                          {friend.name ? friend.name.charAt(0).toUpperCase() : "?"}
-                        </div>
-                        <span className={`text-sm font-medium ${isSelected ? "text-white" : "text-neutral-300"}`}>
-                          {friend.name}
-                        </span>
-                      </div>
-                      
-                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                        isSelected ? "bg-emerald-500 border-emerald-500" : "border-neutral-600"
-                      }`}>
-                        {isSelected && <IconCheck size={14} className="text-neutral-950 stroke-[3]" />}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+          {/* Include Self Toggle */}
+          <label className="flex items-center gap-3 cursor-pointer group w-fit">
+            <div 
+              onClick={() => setIncludeSelf(!includeSelf)}
+              className={cn("w-10 h-5 rounded-full transition-all relative", includeSelf ? "bg-emerald-500" : "bg-neutral-700")}
+            >
+              <div className={cn("absolute top-1 w-3 h-3 bg-white rounded-full transition-all", includeSelf ? "left-6" : "left-1")} />
+            </div>
+            <span className="text-sm font-medium text-neutral-300">Include myself in the split</span>
+          </label>
+
+          {/* Friend Selector */}
+          <div className="space-y-3">
+            <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest ml-1">Split With</p>
+            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+              {friends.map((friend: any) => (
+                <div
+                  key={friend.id}
+                  onClick={() => setSelectedFriends(prev => prev.includes(friend.id) ? prev.filter(i => i !== friend.id) : [...prev, friend.id])}
+                  className={cn("p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-3", 
+                    selectedFriends.includes(friend.id) ? "bg-emerald-500/10 border-emerald-500/50" : "bg-neutral-900 border-transparent hover:border-neutral-800")}
+                >
+                  <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold", 
+                    selectedFriends.includes(friend.id) ? "bg-emerald-500 text-black" : "bg-neutral-800 text-neutral-400")}>
+                    {friend.name?.charAt(0)}
+                  </div>
+                  <span className="text-xs truncate">{friend.name}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Footer Actions */}
-        <div className="flex gap-3 mt-8 pt-4 border-t border-neutral-800">
-          <button
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="flex-1 py-3 bg-transparent text-neutral-400 font-medium rounded-xl hover:bg-neutral-900 hover:text-white transition-colors"
-          >
-            Cancel
-          </button>
+          {/* Custom Inputs per Participant (for Exact/Percentage) */}
+          {splitType !== "equal" && (
+            <div className="space-y-3 pt-4 border-t border-neutral-800">
+              {participants.map((p) => (
+                <div key={p.id} className="flex items-center justify-between gap-4">
+                  <span className="text-sm text-neutral-400 truncate">{p.name}</span>
+                  <div className="relative w-32">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 text-xs">
+                      {splitType === "exact" ? "₹" : "%"}
+                    </span>
+                    <input
+                      type="number"
+                      value={customValues[p.id] || ""}
+                      onChange={(e) => setCustomValues({ ...customValues, [p.id]: e.target.value })}
+                      className="w-full bg-neutral-950 border border-neutral-800 p-2 pl-6 rounded-lg text-sm text-right focus:border-emerald-500 outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+              {!validation.valid && participants.length > 0 && (
+                <p className="text-xs text-rose-400 text-right font-medium">
+                  Remaining: {splitType === "exact" ? formatCurrency(validation.diff) : `${validation.diff.toFixed(1)}%`}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Human-Readable Summary */}
+          {participants.length > 0 && (
+            <div className="bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/20">
+              <p className="text-xs text-emerald-400 leading-relaxed italic">
+                {splitType === "equal" 
+                  ? `Each of the ${participants.length} people will pay ${formatCurrency((Number(totalAmount) * 100) / participants.length)}.`
+                  : `You're splitting ${formatCurrency(Number(totalAmount) * 100)} manually between ${participants.length} people.`
+                }
+              </p>
+            </div>
+          )}
+
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || !description || !totalAmount || selectedFriends.length === 0}
-            className="flex-1 py-3 bg-emerald-500 text-neutral-950 font-bold rounded-xl hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting || !description || !totalAmount || !validation.valid}
+            className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-2xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? "Saving..." : "Create Bill"}
+            {isSubmitting ? "Creating..." : "Save Expense"}
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SummaryCard({ title, amount, subtitle, type }: any) {
+  const isPos = type === "positive";
+  return (
+    <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-3xl flex flex-col justify-between h-36">
+      <h3 className="text-neutral-500 text-xs font-bold uppercase tracking-widest">{title}</h3>
+      <p className={cn("text-3xl font-black", isPos ? "text-emerald-400" : "text-red-400")}>
+        {isPos && amount > 0 ? "+" : ""}{formatCurrency(amount)}
+      </p>
+      <p className="text-[10px] text-neutral-600 font-medium">{subtitle}</p>
+    </div>
+  );
+}
+
+function Section({ title, children, className, headerRight }: any) {
+  return (
+    <div className={cn("bg-neutral-900 p-8 rounded-[2.5rem] border border-neutral-800", className)}>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">{title}</h2>
+        {headerRight}
+      </div>
+      {children}
     </div>
   );
 }
