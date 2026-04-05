@@ -47,15 +47,34 @@ export default function FriendsPage() {
     { label: "Dev Blog", href: "/blog", icon: <IconReceipt /> },
     { label: "Logout", href: "/login", icon: <IconLogout /> },
   ];
-
+  console.log("friendsData:", friendsData);
   // ✅ Bulletproof parsing for friends
-  const friends = useMemo(() => {
-    if (!friendsData) return [];
-    if (Array.isArray(friendsData)) return friendsData;
-    if (Array.isArray(friendsData.friends)) return friendsData.friends;
-    if (Array.isArray(friendsData.data)) return friendsData.data;
-    return [];
-  }, [friendsData]);
+const friends = useMemo(() => {
+  if (!friendsData) return [];
+
+  const raw = Array.isArray(friendsData)
+    ? friendsData
+    : friendsData.friends || friendsData.data || [];
+
+  return raw.map((f: any) => ({
+    id: f.id,
+
+    // fallback chain (handles ANY backend shape)
+    name:
+      f.name ||
+      f.user?.name ||
+      f.friend?.name ||
+      "Unknown User",
+
+    email:
+      f.email ||
+      f.user?.email ||
+      f.friend?.email ||
+      "No email",
+
+    balance: f.balance ?? 0,
+  }));
+}, [friendsData]);
 
   // ✅ Bulletproof parsing for search results
   const results = useMemo(() => {
