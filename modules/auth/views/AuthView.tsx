@@ -1,5 +1,6 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { useState, forwardRef, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -252,33 +253,27 @@ export default function AuthView() {
     setPending(true);
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sign-up/email`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            password: data.password
-        })
+        const { data: resData, error: resError } = await authClient.signUp.email({
+          email: data.email.trim(),
+          password: data.password,
+          name: data.name.trim(),
         });
 
-        const result = await res.json();
-
-        if (!res.ok) {
-        throw new Error(result.message || "Sign up failed");
+        if (resError) {
+          throw new Error(resError.message || "Sign up failed");
         }
 
-        toast.success("Signed up successfully");
+        if (resData?.token) {
+          localStorage.setItem("auth_token", resData.token);
+          sessionStorage.setItem("auth_token", resData.token);
+        }
 
-        setIsSigningUp(false);
+        toast.success("Account created successfully!");
+        router.refresh();
+        router.push("/dashboard");
 
-        toast.success("Account created! Please login.");
-
-    } catch (err: unknown) {
-        setErrorS("Sign up failed. Please try again: " + (err as Error).message);
+    } catch (err: any) {
+        setErrorS("Sign up failed: " + (err?.message || "Please try again"));
     } finally {
         setPending(false);
     }
@@ -289,32 +284,27 @@ export default function AuthView() {
     setPending(true);
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sign-in/email`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: data.email,
-            password: data.password
-        })
+        const { data: resData, error: resError } = await authClient.signIn.email({
+          email: data.email.trim(),
+          password: data.password,
         });
 
-        const result = await res.json();
-
-        if (!res.ok) {
-        setError(result.message ?? "Invalid credentials");
-        return;
+        if (resError) {
+          setError(resError.message || "Invalid email or password");
+          return;
         }
 
-        toast.success("Signed in successfully");
+        if (resData?.token) {
+          localStorage.setItem("auth_token", resData.token);
+          sessionStorage.setItem("auth_token", resData.token);
+        }
 
+        toast.success("Signed in successfully!");
         router.refresh();
         router.push("/dashboard");
 
-    } catch (err: unknown) {
-        setError("Sign in failed: " + (err as Error).message);
+    } catch (err: any) {
+        setError("Sign in failed: " + (err?.message || "Please try again"));
     } finally {
         setPending(false);
     }
@@ -466,7 +456,7 @@ export default function AuthView() {
                                                 {error}
                                             </Alert>
                                         )}
-                                        <Button type="submit" className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign Up</Button>
+                                         <Button type="submit" disabled={pending} className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >{pending ? "Signing in..." : "Sign In"}</Button>
 
                                         {/* Divider */}
                                         <div className="flex items-center my-3 w-full">
@@ -581,7 +571,7 @@ export default function AuthView() {
                                                 {errorS}
                                             </Alert>
                                         )}
-                                        <Button type="submit" className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >Sign In</Button>
+                                        <Button type="submit" disabled={pending} className="w-full px-4 mt-2 bg-linear-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white" >{pending ? "Creating account..." : "Sign Up"}</Button>
 
                                         {/* Divider */}
                                         <div className="flex items-center my-3 w-full">

@@ -8,10 +8,13 @@ import {
   IconBrandTabler,
   IconUsers,
   IconReceipt,
+  IconScale,
+  IconUser,
   IconLogout,
 } from "@tabler/icons-react";
 import { apiFetch } from "@/lib/api";
 import HLoader from "@/modules/extras/loader";
+import { authClient } from "@/lib/auth-client";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -27,11 +30,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, router]);
 
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("auth_token");
+    router.push("/login");
+  };
+
   const links = [
-    { label: "Dashboard", href: "/dashboard", icon: <IconBrandTabler /> },
-    { label: "Friends", href: "/friends", icon: <IconUsers /> },
-    { label: "Dev Blog", href: "/blog", icon: <IconReceipt /> },
-    { label: "Logout", href: "/login", icon: <IconLogout /> }, // Or your signout function
+    { label: "Dashboard", href: "/dashboard", icon: <IconBrandTabler className="size-5" /> },
+    { label: "Friends", href: "/friends", icon: <IconUsers className="size-5" /> },
+    { label: "Bills & Expenses", href: "/bills", icon: <IconReceipt className="size-5" /> },
+    { label: "Settlements & Debt", href: "/settlements", icon: <IconScale className="size-5" /> },
+    { label: "Profile", href: "/profile", icon: <IconUser className="size-5" /> },
   ];
 
   if (isLoading) return <div className="flex h-screen items-center justify-center"><HLoader/></div>;
@@ -57,9 +72,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* 4. This footer stays pinned to the bottom */}
-          <div className="px-4 border-t border-neutral-800 pt-4 pb-2">
-            <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Logged in as</p>
-            <p className="font-medium text-neutral-200 truncate">{user.name}</p>
+          <div className="px-4 border-t border-neutral-800 pt-4 pb-2 space-y-3">
+            <div>
+              <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Logged in as</p>
+              <p className="font-medium text-neutral-200 truncate">{user.name}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 w-full text-xs font-semibold text-rose-400 hover:text-rose-300 py-1.5 transition-colors"
+            >
+              <IconLogout className="size-4" />
+              Sign Out
+            </button>
           </div>
         </SidebarBody>
       </Sidebar>

@@ -15,6 +15,7 @@ import {
 } from "@tabler/icons-react";
 import HLoader from "@/modules/extras/loader";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import { PlaneTakeoffIcon } from "lucide-react";
 
 export default function FriendsPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function FriendsPage() {
     { label: "Friends", href: "/friends", icon: <IconUsers /> },
     { label: "Dev Blog", href: "/blog", icon: <IconReceipt /> },
     { label: "Logout", href: "/login", icon: <IconLogout /> },
+    {label: "Aura - Your Travel Planner", href: "/aura", icon: <PlaneTakeoffIcon /> }
   ];
   console.log("friendsData:", friendsData);
   // ✅ Bulletproof parsing for friends

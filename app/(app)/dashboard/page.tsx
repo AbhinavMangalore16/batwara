@@ -48,6 +48,7 @@ export default function DashboardLayout() {
   // 🔐 Auth check
   const { data: user, isLoading } = useSWR("/api/users/me", apiFetch);
 
+
   // Redirect if not logged in
   useEffect(() => {
     if (!isLoading && !user) {
