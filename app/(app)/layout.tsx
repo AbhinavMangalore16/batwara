@@ -14,11 +14,12 @@ import {
 } from "@tabler/icons-react";
 import { apiFetch } from "@/lib/api";
 import HLoader from "@/modules/extras/loader";
-import { authClient } from "@/lib/auth-client";
+import { useClerk } from "@clerk/nextjs";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { signOut } = useClerk();
 
   // Fetch user for the whole app!
   const { data: user, error, isLoading } = useSWR("/api/users/me", apiFetch, {
@@ -35,7 +36,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      await authClient.signOut();
+      await signOut();
     } catch (e) {
       console.error(e);
     }

@@ -6,8 +6,20 @@ export function buildApiUrl(path: string) {
   return `${API}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function getAuthToken() {
+async function getAuthToken(): Promise<string> {
   if (typeof window === "undefined") return "";
+
+  try {
+    // Clerk session token check
+    const clerk = (window as any).Clerk;
+    if (clerk && clerk.session) {
+      const clerkToken = await clerk.session.getToken();
+      if (clerkToken) return clerkToken;
+    }
+  } catch (e) {
+    console.error("Clerk token retrieval error:", e);
+  }
+
   return (
     localStorage.getItem("auth_token") ||
     sessionStorage.getItem("auth_token") ||
@@ -18,13 +30,11 @@ function getAuthToken() {
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
-  const authToken = getAuthToken();
+  const authToken = await getAuthToken();
 
   const res = await fetch(buildApiUrl(path), {
-    ...options, // ✅ FIRST
-
+    ...options,
     credentials: "include",
-
     headers: {
       "Content-Type": "application/json",
       ...(authToken ? { auth_token: authToken, authorization: `Bearer ${authToken}` } : {}),
