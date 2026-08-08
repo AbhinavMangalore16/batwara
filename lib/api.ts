@@ -25,7 +25,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
     headers: {
       "Content-Type": "application/json",
-      ...(authToken ? { auth_token: authToken } : {}),
+      ...(authToken ? { auth_token: authToken, authorization: `Bearer ${authToken}` } : {}),
       ...(options.headers || {}),
     },
   });

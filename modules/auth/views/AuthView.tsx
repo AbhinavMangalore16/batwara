@@ -263,9 +263,10 @@ export default function AuthView() {
           throw new Error(resError.message || "Sign up failed");
         }
 
-        if (resData?.token) {
-          localStorage.setItem("auth_token", resData.token);
-          sessionStorage.setItem("auth_token", resData.token);
+        const token = (resData as any)?.token || (resData as any)?.session?.token || (resData as any)?.session?.sessionToken;
+        if (token) {
+          localStorage.setItem("auth_token", token);
+          sessionStorage.setItem("auth_token", token);
         }
 
         toast.success("Account created successfully!");
@@ -294,9 +295,10 @@ export default function AuthView() {
           return;
         }
 
-        if (resData?.token) {
-          localStorage.setItem("auth_token", resData.token);
-          sessionStorage.setItem("auth_token", resData.token);
+        const token = (resData as any)?.token || (resData as any)?.session?.token || (resData as any)?.session?.sessionToken;
+        if (token) {
+          localStorage.setItem("auth_token", token);
+          sessionStorage.setItem("auth_token", token);
         }
 
         toast.success("Signed in successfully!");
