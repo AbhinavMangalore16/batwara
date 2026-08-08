@@ -23,10 +23,7 @@ export function AuthView() {
             appearance={{
               variables: {
                 colorBackground: "#0d1117",
-                colorText: "#ffffff",
                 colorPrimary: "#10b981",
-                colorInputBackground: "#161b22",
-                colorInputText: "#ffffff",
               },
             }}
           />
@@ -38,10 +35,7 @@ export function AuthView() {
             appearance={{
               variables: {
                 colorBackground: "#0d1117",
-                colorText: "#ffffff",
                 colorPrimary: "#10b981",
-                colorInputBackground: "#161b22",
-                colorInputText: "#ffffff",
               },
             }}
           />
