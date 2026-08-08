@@ -21,14 +21,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
 
   // Fetch user for the whole app!
-  const { data: user, isLoading } = useSWR("/api/users/me", apiFetch);
+  const { data: user, error, isLoading } = useSWR("/api/users/me", apiFetch, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+  });
 
-  // Global auth redirect
+  // Global auth redirect ONLY when error occurs (e.g. 401 Unauthorized)
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isLoading && error) {
       router.push("/login");
     }
-  }, [user, isLoading, router]);
+  }, [error, isLoading, router]);
 
   const handleLogout = async () => {
     try {

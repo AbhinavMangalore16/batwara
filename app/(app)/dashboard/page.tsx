@@ -41,37 +41,13 @@ const formatCurrency = (amount: number = 0) => {
 };
 
 export default function DashboardLayout() {
-  const router = useRouter();
-  const [open, setOpen] = useState(true);
-
-
-  // 🔐 Auth check
   const { data: user, isLoading } = useSWR("/api/users/me", apiFetch);
-
-
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace("/login");
-    }
-  }, [user, isLoading, router]);
-
-  const links = [
-    { label: "Dashboard", href: "/dashboard", icon: <IconBrandTabler /> },
-    { label: "Friends", href: "/friends", icon: <IconUsers /> },
-    { label: "Bills", href: "/bills", icon: <IconReceipt /> },
-    { label: "Landing", href: "/", icon: <IconUser /> },
-    // { label: "Profile", href: "/profile", icon: <IconUser /> },
-    // { label: "Settings", href: "/settings", icon: <IconSettings /> },
-    { label: "Logout", href: "/login", icon: <IconLogout /> },
-  ];
 
   if (isLoading) return <HLoader />;
   if (!user) return null;
 
   return (
     <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Main Dashboard Content */}
       <MainDashboard user={user} />
     </div>
   );

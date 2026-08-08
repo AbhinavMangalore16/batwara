@@ -11,6 +11,8 @@ function getAuthToken() {
   return (
     localStorage.getItem("auth_token") ||
     sessionStorage.getItem("auth_token") ||
+    localStorage.getItem("better-auth.session_token") ||
+    sessionStorage.getItem("better-auth.session_token") ||
     ""
   );
 }

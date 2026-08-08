@@ -22,7 +22,7 @@ export default function FriendsPage() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(true); // Sidebar state
 
-  // 🔐 Auth check & user fetch for Sidebar
+  // User data fetched via SWR
   const { data: user, isLoading: isUserLoading } = useSWR("/api/users/me", apiFetch);
 
   const { data: friendsData, mutate } = useSWR(
@@ -34,13 +34,6 @@ export default function FriendsPage() {
     search ? `/api/users/search?name=${search}` : null,
     apiFetch
   );
-
-  // Redirect if not logged in
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, isUserLoading, router]);
 
   const links = [
     { label: "Dashboard", href: "/dashboard", icon: <IconBrandTabler /> },
